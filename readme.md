@@ -2,25 +2,36 @@
 
 Reusable Laravel throttling package for Diesel APIs.
 
-This package provides a shared, environment-configurable rate limiter that can be imported by multiple Laravel services to ensure consistent throttling behavior across APIs.
+This package provides a shared rate limiter so multiple Laravel APIs can apply throttling in a consistent and centralized way.
 
 ---
 
-## Features
+## Purpose
 
-- Default rate limit of **60 requests per minute**
-- Explicit package-scoped environment configuration
-- Stable identity hashing based on request headers or IP
-- Named rate limiter for easy route integration
-- Uniform throttling for all consumers
-- No API-specific assumptions
+The goal of this package is to avoid duplicating rate-limiting logic across services.
+
+- Throttling logic lives in one place
+- Each API controls its own rate limit via environment configuration
+- All requests are throttled the same way
+
+---
+
+## What this package does
+
+- Registers a named Laravel rate limiter
+- Limits requests **per identity per minute**
+- Reads the rate limit from the environment variable  
+  **`PKG_LARAVEL_THROTTLING_MIN`**
+- Defaults to **60 requests per minute** if the variable is not set
+- Applies uniform throttling to all requests
+- Does not differentiate between user types
 
 ---
 
 ## Installation
 
-### 1. Add the repository (private)
-
 ```bash
-composer config repositories.pkg-laravel-throttling vcs git@github.com:YOUR_ORG/pkg-laravel-throttling.git
+composer config repositories.pkg-laravel-throttling vcs git@github.com:diesellaptops/pkg-laravel-throttling.git
+composer require diesellaptops/pkg-laravel-throttling
+php artisan vendor:publish --tag=pkg-laravel-throttling-config
 ```
