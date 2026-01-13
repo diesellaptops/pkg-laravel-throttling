@@ -1,7 +1,6 @@
 <?php
 
-namespace Diesellaptops;
-
+namespace Diesellaptops\DieselThrottling;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
