@@ -3,17 +3,22 @@
   "description": "Reusable Laravel throttling package for Diesel APIs",
   "type": "library",
   "license": "proprietary",
-  "autoload": {
-    "psr-4": {
-      "YourVendor\\CommonRateLimits\\": "src/"
-    }
-  },
   "require": {
     "php": "^8.2",
-    "illuminate/support": "^12.0",
-    "illuminate/cache": "^12.0",
-    "illuminate/http": "^12.0",
+    "illuminate/support": "^12.46",
+    "illuminate/cache": "^12.46",
+    "illuminate/http": "^12.46",
     "illuminate/config": "^12.46"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^10.0",
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Diesellaptops\\DieselThrottling\\": "src/",
+      "Diesellaptops\\DieselThrottling\\Tests\\": "tests/"
+    }
   },
   "extra": {
     "laravel": {
@@ -21,6 +26,9 @@
         "Diesellaptops\\DieselThrottling\\DieselThrottlingProvider"
       ]
     }
+  },
+  "scripts": {
+    "test": "phpunit"
   },
   "minimum-stability": "stable",
   "prefer-stable": true
