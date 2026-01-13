@@ -1,0 +1,27 @@
+{
+  "name": "diesellaptops/pkg-laravel-throttling",
+  "description": "Reusable Laravel throttling package for Diesel APIs",
+  "type": "library",
+  "license": "proprietary",
+  "autoload": {
+    "psr-4": {
+      "YourVendor\\CommonRateLimits\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^12.0",
+    "illuminate/cache": "^12.0",
+    "illuminate/http": "^12.0",
+    "illuminate/config": "^12.46"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Diesellaptops\\DieselThrottling\\DieselThrottlingProvider"
+      ]
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
