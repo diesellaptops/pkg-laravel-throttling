@@ -5,10 +5,10 @@
   "license": "proprietary",
   "require": {
     "php": "^8.2",
-    "illuminate/support": "^12.46",
-    "illuminate/cache": "^12.46",
-    "illuminate/http": "^12.46",
-    "illuminate/config": "^12.46"
+    "illuminate/support": "^12.0",
+    "illuminate/cache": "^12.0",
+    "illuminate/http": "^12.0",
+    "illuminate/config": "^12.0"
   },
   "require-dev": {
     "orchestra/testbench": "^10.0",
