@@ -12,17 +12,25 @@ class DieselThrottlingProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/throttling.php', 'rate-limits');
+        $this->mergeConfigFrom(__DIR__ . '/../config/diesel-throttling.php', 'diesel-throttling');
     }
 
     public function boot(ConfigRepository $config): void
     {
-        $limiterName = $config->get('rate-limits.limiter_name', 'api');
+        $this->publishes(
+            [
+                __DIR__ . '/../config/diesel-throttling.php'
+                => $this->app->configPath('diesel-throttling.php'),
+            ],
+            'diesel-throttling-config'
+        );
 
-        RateLimiter::for($limiterName, function (Request $request) use ($config) {
+        $limiterName = $config->get('diesel-throttling.limiter_name', 'api');
+        $perMinute  = (int) $config->get('diesel-throttling.per_minute', 60);
+
+        RateLimiter::for($limiterName, function (Request $request) use ($perMinute) {
             $auth = $request->header('Authorization');
             $key  = $auth ? md5($auth) : $request->ip();
-            $perMinute = (int) $config->get('rate-limits.api_per_minute', 60);
             return Limit::perMinute($perMinute)->by($key);
         });
     }
