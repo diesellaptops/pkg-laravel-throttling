@@ -31,7 +31,7 @@ The goal of this package is to avoid duplicating rate-limiting logic across serv
 ## Installation
 
 ```bash
-composer config repositories.pkg-laravel-throttling vcs git@github.com:diesellaptops/pkg-laravel-throttling.git
+composer config repositories.diesel-throttling vcs git@github.com:diesellaptops/pkg-laravel-throttling.git
 composer require diesellaptops/pkg-laravel-throttling
-php artisan vendor:publish --tag=pkg-laravel-throttling-config
+php artisan vendor:publish --tag=diesel-throttling-config
 ```
