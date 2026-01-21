@@ -12,15 +12,15 @@ class RateLimiterRegistrationTest extends TestCase
     #[Test]
     public function it_registers_the_named_rate_limiter(): void
     {
-        $limiter = RateLimiter::limiter('api');
+        $limiter = RateLimiter::limiter('diesel-api');
 
-        $this->assertNotNull($limiter, 'Expected RateLimiter "api" to be registered.');
+        $this->assertNotNull($limiter, 'Expected RateLimiter "diesel-api" to be registered.');
     }
 
     #[Test]
     public function it_uses_authorization_header_as_key_or_falls_back_to_ip(): void
     {
-        $limiter = RateLimiter::limiter('api');
+        $limiter = RateLimiter::limiter('diesel-api');
         $this->assertNotNull($limiter);
 
         $r1 = Request::create('/test', 'GET', [], [], [], ['REMOTE_ADDR' => '1.2.3.4']);
@@ -40,7 +40,7 @@ class RateLimiterRegistrationTest extends TestCase
     #[Test]
     public function it_applies_the_configured_per_minute_limit(): void
     {
-        $limiter = RateLimiter::limiter('api');
+        $limiter = RateLimiter::limiter('diesel-api');
         $this->assertNotNull($limiter);
 
         $r = Request::create('/test', 'GET', [], [], [], ['REMOTE_ADDR' => '1.1.1.1']);
@@ -53,7 +53,7 @@ class RateLimiterRegistrationTest extends TestCase
     #[Test]
     public function it_returns_429_after_three_requests(): void
     {
-        Route::middleware('throttle:api')->get('/test-throttle', function () {
+        Route::middleware('throttle:diesel-api')->get('/test-throttle', function () {
             return response('ok', 200);
         });
 

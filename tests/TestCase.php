@@ -16,8 +16,8 @@ abstract class TestCase extends Orchestra
 
     protected function defineEnvironment($app): void
     {
-        $app['config']->set('rate-limits.limiter_name', 'api');
-        $app['config']->set('rate-limits.api_per_minute', 3);
+        $app['config']->set('diesel-throttling.limiter_name', 'diesel-api');
+        $app['config']->set('diesel-throttling.per_minute', 3);
         $app['config']->set('cache.default', 'array');
     }
 }
