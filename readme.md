@@ -35,3 +35,9 @@ composer config repositories.diesel-throttling vcs git@github.com:diesellaptops/
 composer require diesellaptops/pkg-laravel-throttling
 php artisan vendor:publish --tag=diesel-throttling-config
 ```
+Add middleware `throttle:diesel-api` to the routes you want to throttle.
+```bash
+Route::middleware(['throttle:diesel-api'])->group(function () {
+    // ...
+});
+```
