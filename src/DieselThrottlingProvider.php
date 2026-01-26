@@ -30,7 +30,15 @@ class DieselThrottlingProvider extends ServiceProvider
 
         RateLimiter::for($limiterName, function (Request $request) use ($perMinute) {
             $auth = $request->header('Authorization');
-            $key  = $auth ? md5($auth) : $request->ip();
+            $xApiKey = $request->header('x-api-key');
+            if ($xApiKey) {
+                $key = md5($xApiKey);
+            } elseif ($auth) {
+                $key = md5($auth);
+            } else {
+                $key = md5($request->ip());
+            }
+            $key = 'auth_' . $key;
             return Limit::perMinute($perMinute)->by($key);
         });
     }

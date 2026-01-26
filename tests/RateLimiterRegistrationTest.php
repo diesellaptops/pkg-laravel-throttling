@@ -28,13 +28,13 @@ class RateLimiterRegistrationTest extends TestCase
 
         $limit1 = $limiter($r1);
 
-        $this->assertSame(md5('Bearer abc'), $limit1->key);
+        $this->assertSame('auth_' . md5('Bearer abc'), $limit1->key);
 
         $r2 = Request::create('/test', 'GET', [], [], [], ['REMOTE_ADDR' => '9.9.9.9']);
 
         $limit2 = $limiter($r2);
 
-        $this->assertSame('9.9.9.9', $limit2->key);
+        $this->assertSame('auth_'. md5('9.9.9.9'), $limit2->key);
     }
 
     #[Test]
@@ -61,6 +61,7 @@ class RateLimiterRegistrationTest extends TestCase
         $this->get('/test-throttle')->assertStatus(200);
         $this->get('/test-throttle')->assertStatus(200);
 
+        $this->get('/test-throttle')->assertStatus(429);
         $this->get('/test-throttle')->assertStatus(429);
     }
 }
