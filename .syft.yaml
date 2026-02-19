@@ -1,0 +1,8 @@
+exclude:
+  - "**/.venv/**"
+  - "**/venv/**"
+  - "**/.tox/**"
+  - "**/.cache/**"
+  - "**/node_modules/**"
+  - "**/vendor/**"
+  - "**/.git/**"
