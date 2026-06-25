@@ -1,0 +1,4 @@
+# Code owners for pkg-laravel-throttling (WT-418).
+# GitHub auto-requests review from these owners on any PR.
+# The README Ownership table mirrors this; CODEOWNERS wins on conflict.
+* @MaxNesvit @TakShimamura
