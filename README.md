@@ -45,14 +45,14 @@ middleware referencing the limiter name (`throttle:diesel-api`).
 
 ## Tech stack
 
-- **Language:** PHP `^8.2` (`composer.json`).
-- **Framework:** Laravel 12 component contracts — `illuminate/support`,
-  `illuminate/cache`, `illuminate/http`, `illuminate/config` all `^12.0`. Not a full
-  app; a library consumed by Laravel 12 apps.
+- **Language:** PHP `^8.3` (`composer.json`).
+- **Framework:** Laravel 13 component contracts — `illuminate/support`,
+  `illuminate/cache`, `illuminate/http`, `illuminate/config` all `^13.0`. Not a full
+  app; a library consumed by Laravel 13 apps.
 - **Package type:** `library`, license `proprietary` (`composer.json`).
 - **PSR-4 autoload:** `Diesellaptops\DieselThrottling\` → `src/`.
 - **Laravel auto-discovery:** provider declared in `composer.json` `extra.laravel.providers`.
-- **Dev/tooling:** `orchestra/testbench ^10.0`, PHPUnit `^11` (`composer.json`).
+- **Dev/tooling:** `orchestra/testbench ^11.0`, PHPUnit `^12.5.8|^13.0` (`composer.json`).
 - **Current tag:** `v1.0.0`.
 
 ## Installation (in a consuming Laravel API)
