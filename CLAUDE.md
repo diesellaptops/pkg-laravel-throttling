@@ -50,7 +50,7 @@ phpunit.xml                      testsuite config
 
 ## Coding conventions
 
-- **PHP 8.2**, PSR-4 (`Diesellaptops\DieselThrottling\` → `src/`). Match the existing
+- **PHP 8.3**, PSR-4 (`Diesellaptops\DieselThrottling\` → `src/`). Match the existing
   Laravel/Illuminate idioms (service provider, `RateLimiter::for`, `Limit`).
 - **Depend only on the `illuminate/*` components already required** (`support`, `cache`,
   `http`, `config`) — this is a library; do not pull in the full `laravel/framework`.
@@ -78,7 +78,7 @@ phpunit.xml                      testsuite config
 - **Config caching in consumers:** the per-minute value is resolved at provider boot
   from `config()`. If a consumer runs `config:cache`, the env var must be present at
   cache time. Document new knobs in the README table.
-- **Releases are tags.** Consumers pin via Composer; bump and tag (current `v1.0.0`)
+- **Releases are tags.** Consumers pin via Composer; bump and tag (current `v2.0.0`)
   rather than relying on branch state.
 
 ## Key domain concepts
@@ -92,7 +92,7 @@ phpunit.xml                      testsuite config
 
 ## Testing approach
 
-- **PHPUnit ^11 via Orchestra Testbench ^10** (`tests/TestCase.php` boots the provider
+- **PHPUnit `^12.5.8|^13.0` via Orchestra Testbench ^11** (`tests/TestCase.php` boots the provider
   in a minimal Laravel app). Run `composer test` or `./vendor/bin/phpunit`.
 - `RateLimiterRegistrationTest` asserts: the limiter is registered; keying uses
   `Authorization` then falls back to IP; the configured `per_minute` is honored; and the
