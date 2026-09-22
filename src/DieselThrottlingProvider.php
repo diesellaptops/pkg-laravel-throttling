@@ -29,6 +29,10 @@ class DieselThrottlingProvider extends ServiceProvider
         $perMinute  = (int) $config->get('diesel-throttling.per_minute', 60);
 
         RateLimiter::for($limiterName, function (Request $request) use ($perMinute) {
+            if ($request->header('x-client-id')) {
+                return Limit::none();
+            }
+
             $auth = $request->header('Authorization');
             $xApiKey = $request->header('x-api-key');
             if ($xApiKey) {

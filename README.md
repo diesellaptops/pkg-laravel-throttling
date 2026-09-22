@@ -30,7 +30,15 @@ A single Laravel service provider, `DieselThrottlingProvider`
 
 - **Registers one named rate limiter** via `RateLimiter::for($limiterName, …)` — the
   name defaults to `diesel-api` (`config/diesel-throttling.php`).
-- **Keys the limit per identity**, in this precedence (`src/DieselThrottlingProvider.php:31-43`):
+- **Skips the limit for gateway-identified clients** — if the `x-client-id` request
+  header is present and non-empty, the limiter returns `Limit::none()`. Envoy Gateway
+  injects this header after validating the caller's JWT against Keycloak (pulling the
+  `azp` claim); the limiter trusts it because the gateway strips any inbound copy before
+  forwarding. **Only enable this on an API whose gateway both strips an inbound
+  `x-client-id` and enforces its own per-client quota — without both, enabling it
+  removes the API's only rate limit.**
+- **Keys the limit per identity** (when `x-client-id` is absent), in this precedence
+  (`src/DieselThrottlingProvider.php`):
   1. `x-api-key` request header → `md5(x-api-key)`
   2. else `Authorization` request header → `md5(Authorization)`
   3. else client IP → `md5($request->ip())`
