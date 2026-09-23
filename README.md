@@ -30,13 +30,19 @@ A single Laravel service provider, `DieselThrottlingProvider`
 
 - **Registers one named rate limiter** via `RateLimiter::for($limiterName, …)` — the
   name defaults to `diesel-api` (`config/diesel-throttling.php`).
-- **Skips the limit for gateway-identified clients** — if the `x-client-id` request
-  header is present and non-empty, the limiter returns `Limit::none()`. Envoy Gateway
-  injects this header after validating the caller's JWT against Keycloak (pulling the
-  `azp` claim); the limiter trusts it because the gateway strips any inbound copy before
-  forwarding. **Only enable this on an API whose gateway both strips an inbound
-  `x-client-id` and enforces its own per-client quota — without both, enabling it
-  removes the API's only rate limit.**
+- **Optionally skips the limit for gateway-identified clients** — controlled by
+  `skip_for_client_id` (default **`false`**, env `PKG_LARAVEL_THROTTLING_SKIP_CLIENT_ID`).
+  When `true`, a request with a non-empty `x-client-id` header receives `Limit::none()`.
+  **Three preconditions must all be true before a consumer enables this flag:**
+  1. The upstream gateway (e.g. Envoy) injects `x-client-id` from the caller's JWT `azp`
+     claim — meaning that header is always gateway-authoritative, not caller-supplied.
+  2. The gateway strips any inbound `x-client-id` before forwarding — so callers cannot
+     self-grant the bypass by sending the header themselves.
+  3. The gateway enforces its own per-client quota — so removing the Laravel limit does
+     not leave the route unmetered.
+  Without all three, enabling the flag removes the API's only rate control. Note that
+  **AWS API Gateway (`proxy.api.<env>`) does not traverse Envoy** and satisfies none of
+  these conditions; do not enable the flag on APIs served exclusively through that path.
 - **Keys the limit per identity** (when `x-client-id` is absent), in this precedence
   (`src/DieselThrottlingProvider.php`):
   1. `x-api-key` request header → `md5(x-api-key)`
@@ -107,6 +113,7 @@ Config file `config/diesel-throttling.php` (publishable):
 | --- | --- | --- | --- |
 | `per_minute` | `PKG_LARAVEL_THROTTLING_MIN` | `60` | Max requests per identity per minute |
 | `limiter_name` | `PKG_LARAVEL_LIMITER_NAME` | `diesel-api` | Name the limiter registers under (must match the `throttle:<name>` middleware in the consumer) |
+| `skip_for_client_id` | `PKG_LARAVEL_THROTTLING_SKIP_CLIENT_ID` | `false` | When `true`, requests with a non-empty `x-client-id` header skip the Laravel limit entirely. See preconditions above before enabling. |
 
 The package ships **no** `.env` file. These env vars (if used) are set in the
 **consuming app's** environment; deployed values come from that app's normal config

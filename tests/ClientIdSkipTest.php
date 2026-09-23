@@ -8,6 +8,13 @@ use PHPUnit\Framework\Attributes\Test;
 
 class ClientIdSkipTest extends TestCase
 {
+    protected function defineEnvironment($app): void
+    {
+        parent::defineEnvironment($app);
+        $app['config']->set('diesel-throttling.skip_for_client_id', true);
+    }
+
+
     #[Test]
     public function it_returns_no_limit_when_x_client_id_is_present(): void
     {
