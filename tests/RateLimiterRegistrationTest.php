@@ -64,4 +64,32 @@ class RateLimiterRegistrationTest extends TestCase
         $this->get('/test-throttle')->assertStatus(429);
         $this->get('/test-throttle')->assertStatus(429);
     }
+
+    #[Test]
+    public function it_still_throttles_when_x_client_id_is_present_but_flag_is_off(): void
+    {
+        Route::middleware('throttle:diesel-api')->get('/test-client-id-flag-off', function () {
+            return response('ok', 200);
+        });
+
+        $this->get('/test-client-id-flag-off', ['x-client-id' => 'client-abc'])->assertStatus(200);
+        $this->get('/test-client-id-flag-off', ['x-client-id' => 'client-abc'])->assertStatus(200);
+        $this->get('/test-client-id-flag-off', ['x-client-id' => 'client-abc'])->assertStatus(200);
+
+        $this->get('/test-client-id-flag-off', ['x-client-id' => 'client-abc'])->assertStatus(429);
+    }
+
+    #[Test]
+    public function it_still_throttles_when_x_client_id_is_absent(): void
+    {
+        Route::middleware('throttle:diesel-api')->get('/test-no-client-id', function () {
+            return response('ok', 200);
+        });
+
+        $this->get('/test-no-client-id')->assertStatus(200);
+        $this->get('/test-no-client-id')->assertStatus(200);
+        $this->get('/test-no-client-id')->assertStatus(200);
+
+        $this->get('/test-no-client-id')->assertStatus(429);
+    }
 }

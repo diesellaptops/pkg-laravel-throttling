@@ -25,10 +25,15 @@ class DieselThrottlingProvider extends ServiceProvider
             'diesel-throttling-config'
         );
 
-        $limiterName = $config->get('diesel-throttling.limiter_name', 'diesel-api');
-        $perMinute  = (int) $config->get('diesel-throttling.per_minute', 60);
+        $limiterName      = $config->get('diesel-throttling.limiter_name', 'diesel-api');
+        $perMinute        = (int) $config->get('diesel-throttling.per_minute', 60);
+        $skipForClientId  = (bool) $config->get('diesel-throttling.skip_for_client_id', false);
 
-        RateLimiter::for($limiterName, function (Request $request) use ($perMinute) {
+        RateLimiter::for($limiterName, function (Request $request) use ($perMinute, $skipForClientId) {
+            if ($skipForClientId && $request->header('x-client-id')) {
+                return Limit::none();
+            }
+
             $auth = $request->header('Authorization');
             $xApiKey = $request->header('x-api-key');
             if ($xApiKey) {

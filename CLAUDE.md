@@ -30,10 +30,11 @@ src/
   DieselThrottlingProvider.php   the entire library: register() merges config,
                                  boot() publishes config + registers the limiter
 config/
-  diesel-throttling.php          per_minute + limiter_name (env-backed defaults)
+  diesel-throttling.php          per_minute + limiter_name + skip_for_client_id (env-backed defaults)
 tests/
   TestCase.php                   Orchestra Testbench base; boots the provider
   RateLimiterRegistrationTest.php limiter registration / keying / 429 behavior
+  ClientIdSkipTest.php            x-client-id skip: flag-on (bypass) and flag-off (throttled) cases
 composer.json                    name, autoload, extra.laravel.providers (discovery)
 phpunit.xml                      testsuite config
 ```
@@ -42,8 +43,11 @@ phpunit.xml                      testsuite config
 - `composer.json` → `extra.laravel.providers` lists `DieselThrottlingProvider`, so a
   consuming Laravel app auto-discovers and boots it.
 - `register()` merges `config/diesel-throttling.php` under the `diesel-throttling` key.
-- `boot()` reads `limiter_name` (default `diesel-api`) and `per_minute` (default 60),
-  then calls `RateLimiter::for($limiterName, fn(Request) => Limit::perMinute(...)->by($key))`.
+- `boot()` reads `limiter_name` (default `diesel-api`), `per_minute` (default 60), and
+  `skip_for_client_id` (default `false`). It calls `RateLimiter::for($limiterName, closure)`.
+- Inside the closure: if `skip_for_client_id` is `true` and `x-client-id` header is
+  non-empty, returns `Limit::none()` — gateway owns the quota for that request. Otherwise
+  falls through to normal keying.
 - The `$key` is `auth_` + `md5()` of: `x-api-key` header, else `Authorization` header,
   else `$request->ip()` — so callers are bucketed per API key / per token / per IP.
 - The consumer applies it by adding `throttle:diesel-api` to a route/group.
@@ -78,8 +82,14 @@ phpunit.xml                      testsuite config
 - **Config caching in consumers:** the per-minute value is resolved at provider boot
   from `config()`. If a consumer runs `config:cache`, the env var must be present at
   cache time. Document new knobs in the README table.
-- **Releases are tags.** Consumers pin via Composer; bump and tag (current `v2.0.0`)
+- **Releases are tags.** Consumers pin via Composer; bump and tag (current `v2.1.0`)
   rather than relying on branch state.
+- **`skip_for_client_id` requires gateway prerequisites.** The flag defaults `false`
+  and ships inert. Enabling it (`PKG_LARAVEL_THROTTLING_SKIP_CLIENT_ID=true`) removes
+  the only Laravel-layer rate limit for requests carrying `x-client-id`. Only set this
+  after the Envoy `BackendTrafficPolicy` is live and injecting + stripping the header.
+  APIs served exclusively through AWS API Gateway (`proxy.api.<env>`) must never enable
+  this flag — that path does not traverse Envoy and cannot satisfy the strip precondition.
 
 ## Key domain concepts
 
@@ -95,9 +105,12 @@ phpunit.xml                      testsuite config
 - **PHPUnit `^12.5.8|^13.0` via Orchestra Testbench ^11** (`tests/TestCase.php` boots the provider
   in a minimal Laravel app). Run `composer test` or `./vendor/bin/phpunit`.
 - `RateLimiterRegistrationTest` asserts: the limiter is registered; keying uses
-  `Authorization` then falls back to IP; the configured `per_minute` is honored; and the
-  route returns `429` after the cap. The test env sets `per_minute = 3`,
-  `cache.default = array`.
+  `Authorization` then falls back to IP; the configured `per_minute` is honored; the
+  route returns `429` after the cap; and `x-client-id` present with the flag off still
+  triggers `429`. The test env sets `per_minute = 3`, `cache.default = array`.
+- `ClientIdSkipTest` asserts the `skip_for_client_id` flag behavior: it overrides
+  `defineEnvironment` to set the flag `true`, then verifies `x-client-id` present →
+  `Limit::none()` (no 429 after 5 requests) and `x-client-id` empty → throttled normally.
 - `phpunit.xml` enables `failOnWarning` / `failOnRisky` — keep the suite warning-clean.
 - **Passing = green PHPUnit.** Add a test for any new keying or config behavior.
 
